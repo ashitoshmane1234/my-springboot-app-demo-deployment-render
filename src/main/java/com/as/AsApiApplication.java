@@ -11,7 +11,6 @@ import org.springframework.context.annotation.PropertySource;
  */
 @SpringBootApplication
 @PropertySource("classpath:exception-message.properties")
-@PropertySource("classpath:response-message.properties")
 public class AsApiApplication {
 
   /**
