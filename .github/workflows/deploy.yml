@@ -14,7 +14,7 @@ jobs:
       SPRING_PROFILES_ACTIVE: ${{ github.ref == 'refs/heads/main' && 'main' || 'development' }}
 
     steps:
-      # 1. Checkout code
+      # 1. Checkout the code
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -25,14 +25,18 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # 3. Build project
+      # 3. Build project JAR
       - name: Build Spring Boot jar
         run: mvn clean package -DskipTests
 
-      # 4. Deploy to Render
+      # 4. Trigger Render deploy via API
       - name: Deploy to Render
-        uses: render-examples/deploy-action@v1
-        with:
-          apiKey: ${{ secrets.RENDER_API_KEY }}
-          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
-          artifact: target/*.jar
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          echo "Triggering deploy on Render for service $RENDER_SERVICE_ID..."
+          curl -X POST "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -d '{}'
